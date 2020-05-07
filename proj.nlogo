@@ -7,6 +7,7 @@ end
 
 ; load a maze from the file system
 to load-maze [ maze ]
+  Setup
   if maze != false
   [
     ifelse (item (length maze - 1) maze = "g" and item (length maze - 2) maze = "n" and item (length maze - 3) maze = "p" and item (length maze - 4) maze = ".")
@@ -28,12 +29,29 @@ end
 to save-maze [filename]
     export-view (filename)
 end
+
+; populate cities with tucks
+to populate
+  ask turtles
+  [
+    die
+  ]
+  repeat n-trucks [
+    ask one-of patches with [pcolor = blue]
+    [
+      sprout 1
+      [
+        set color red
+      ]
+    ]
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-723
-524
+718
+519
 -1
 -1
 5.0
@@ -47,9 +65,9 @@ GRAPHICS-WINDOW
 1
 1
 0
-100
+99
 0
-100
+99
 0
 0
 1
@@ -57,12 +75,12 @@ ticks
 30.0
 
 BUTTON
-18
-11
-188
-44
-NIL
-Setup
+724
+10
+915
+43
+Load Map
+load-maze user-file
 NIL
 1
 T
@@ -73,13 +91,28 @@ NIL
 NIL
 1
 
+SLIDER
+8
+11
+45
+517
+n-trucks
+n-trucks
+0
+500
+111.0
+1
+1
+NIL
+VERTICAL
+
 BUTTON
-18
-49
-188
-82
-Load Map
-load-maze user-file
+51
+11
+201
+44
+Populate
+populate
 NIL
 1
 T
