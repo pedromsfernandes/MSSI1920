@@ -199,6 +199,14 @@ to-report find-a-path [ source-patch destination-patch]
       ; if a path is not found (search is incomplete) and the open list is exhausted
       ; display a user message and report an empty search path list.
       user-message( "A path from the source to the destination does not exist." )
+      ask source-patch
+      [
+        set plabel "origin"
+      ]
+      ask destination-patch
+      [
+        set plabel "destination"
+      ]
       report []
     ]
   ]
@@ -256,8 +264,8 @@ GRAPHICS-WINDOW
 99
 0
 99
-0
-0
+1
+1
 1
 ticks
 30.0
@@ -288,7 +296,7 @@ n-trucks
 n-trucks
 0
 500
-1.0
+89.0
 1
 1
 NIL
