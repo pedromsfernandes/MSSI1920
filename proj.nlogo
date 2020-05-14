@@ -1,3 +1,9 @@
+; global variables
+globals
+[
+  tick-counter ; tick counter
+]
+
 ; patch variables used
 patches-own
 [
@@ -108,7 +114,12 @@ end
 
 ; move all turtles
 to move
-    move-turtles
+    set tick-counter tick-counter + 1
+    if tick-counter >= (31 - speed)
+    [
+      set tick-counter 0
+      move-turtles
+    ]
     tick
 end
 
@@ -125,9 +136,9 @@ end
 
 to go-to-next-patch-in-current-path
   face first path
-  repeat 500000 / speed
+  repeat 10
   [
-    fd speed / 500000
+    fd 0.1
   ]
   move-to first path
   set path remove-item 0 path
@@ -383,8 +394,8 @@ SLIDER
 speed
 speed
 1
-100
-31.0
+30
+27.0
 1
 1
 NIL
