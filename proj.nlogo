@@ -15,6 +15,7 @@ globals
 ; patch variables used
 patches-own
 [
+  id ; specific patch id
   parent-patch ; patch's predecessor
   f ; the value of knowledge plus heuristic cost function f()
   g ; the value of knowledge cost function g()
@@ -53,11 +54,19 @@ to load-maze [ maze ]
       [
         die
       ]
+      set-patch-id
     ]
     [
       user-message "The selected file is not a valid image."
     ]
   ]
+end
+
+; sets patch specific id
+to set-patch-id
+  (foreach (sort patches) (range count patches) [ [p n] ->
+    ask p [ set id n ]
+  ])
 end
 
 ; save a maze as a PNG image into the system
@@ -188,21 +197,21 @@ to-report get-longest-subsequence [ path1 path2 ]
 
   while [ x < length path1 ]
   [
-    table:put t (item x path1) x
+    table:put t ([id] of (item x path1)) x
     set x x + 1
   ]
   while [ y < length path2 ]
   [
-    if table:has-key? t (item y path2)
+    if table:has-key? t ([id] of (item y path2))
     [
        ifelse cnt = 0
        [
-         set firstX table:get t (item y path2)
+        set firstX table:get t ([id] of (item y path2))
          set firstY y
          set offset firstX - firstY
        ]
        [
-         if (((table:get t (item y path2)) - y) != offset)
+        if (((table:get t ([id] of (item y path2))) - y) != offset)
          [
            report (list cnt firstX firstY)
          ]
