@@ -1,7 +1,15 @@
+extensions
+[
+  table
+]
+
 ; global variables
 globals
 [
   tick-counter ; tick counter
+  cycle-counter ; the number of "hours" passed
+  time-spent ; total number of "hours" spent by trucks while driving
+  money-spent ; total money spent on fuel
 ]
 
 ; patch variables used
@@ -19,6 +27,10 @@ turtles-own
   origin ;; starting city
   destination ;; target city
   path ;; the calculated path
+  departure-time ;; cycle of departure - between 0 and 49
+  is-moving ;; bool value - if the truck is "on the road"
+  k ;; truck-specific constant to adjust preference for saving fuel
+  m ;; truck-specific constant to adjust preference for saving time
 ]
 
 ; setup the world
@@ -71,6 +83,14 @@ to populate
         set color red
         set origin patch-here
         set destination patch-here
+        set departure-time random 50
+        set is-moving false
+        set k random-float 1 + 0.5
+        set m random-float 1 + 0.5
+        if display-departure-times
+        [
+          set label departure-time
+        ]
         while [origin = destination]
           [ set destination one-of patches with [pcolor = blue] ]
         if display-labels
@@ -87,7 +107,12 @@ to populate
       ]
     ]
   ]
+  set tick-counter 0
+  set cycle-counter 0
+  set time-spent 0
+  set money-spent 0
   reset-ticks
+  find-shortest-path
 end
 
 ; call the path finding procedure, update the turtle (agent) variables, output text box
@@ -118,6 +143,7 @@ to move
     if tick-counter >= (31 - speed)
     [
       set tick-counter 0
+      set cycle-counter cycle-counter + 1
       move-turtles
     ]
     tick
@@ -127,9 +153,13 @@ end
 to move-turtles
   ask turtles
   [
-    if length path != 0
+    ifelse length path != 0 and cycle-counter > departure-time
     [
+      set is-moving true
       go-to-next-patch-in-current-path
+    ]
+    [
+      set is-moving false
     ]
   ]
 end
@@ -142,7 +172,48 @@ to go-to-next-patch-in-current-path
   ]
   move-to first path
   set path remove-item 0 path
+  set time-spent time-spent + 1
 end
+
+;; finds longest subsequence between two paths, as well as the starting point
+;; returns a list with three values: (path-length, subpath-start-index-1, subpath-start-index-2)
+to-report get-longest-subsequence [ path1 path2 ]
+  let x 0
+  let y 0
+  let cnt 0
+  let offset 0
+  let firstX -1
+  let firstY -1
+  let t table:make
+
+  while [ x < length path1 ]
+  [
+    table:put t (item x path1) x
+    set x x + 1
+  ]
+  while [ y < length path2 ]
+  [
+    if table:has-key? t (item y path2)
+    [
+       ifelse cnt = 0
+       [
+         set firstX table:get t (item y path2)
+         set firstY y
+         set offset firstX - firstY
+       ]
+       [
+         if (((table:get t (item y path2)) - y) != offset)
+         [
+           report (list cnt firstX firstY)
+         ]
+       ]
+       set cnt cnt + 1
+    ]
+    set y y + 1
+  ]
+  report (list cnt firstX firstY)
+end
+
 
 ; the actual implementation of the A* path finding algorithm
 ; it takes the source and destination patches as inputs
@@ -305,9 +376,9 @@ SLIDER
 517
 n-trucks
 n-trucks
-0
+1
 500
-89.0
+72.0
 1
 1
 NIL
@@ -331,27 +402,10 @@ NIL
 1
 
 BUTTON
-52
-48
+51
+47
 201
-81
-Find Path (A*)
-find-shortest-path
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-53
-85
-201
-118
+80
 Move
 move
 T
@@ -388,9 +442,9 @@ display-labels
 
 SLIDER
 828
-151
+182
 1017
-184
+215
 speed
 speed
 1
@@ -400,6 +454,39 @@ speed
 1
 NIL
 HORIZONTAL
+
+SWITCH
+827
+135
+1017
+168
+display-departure-times
+display-departure-times
+1
+1
+-1000
+
+MONITOR
+52
+472
+200
+517
+Cycle
+cycle-counter
+0
+1
+11
+
+MONITOR
+52
+423
+200
+468
+Hours Spent
+time-spent
+0
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
