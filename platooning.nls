@@ -1,0 +1,98 @@
+to platoon
+  let truck-list sort-by [ [a b] -> [departure-time] of a < [departure-time] of b ] turtles
+  let cnt 1
+  while [ length truck-list > 0 ]
+  [
+    let platoon-leader item (length truck-list - 1) truck-list
+    set truck-list remove-item (length truck-list - 1) truck-list
+    set truck-list (get-platoon-candidates platoon-leader truck-list cnt)
+    set cnt cnt + 1
+  ]
+  if display-platoons
+  [
+    ask turtles [ set label platoonID ]
+  ]
+end
+
+to-report get-platoon-candidates [ leader trucks pid ]
+  let non-candidates []
+
+  let i (length trucks - 1)
+  let pathL [path] of leader
+  ask leader [ set platoonID pid ]
+  while [ i >= 0 ]
+  [
+    let candidate item i trucks
+    let cost [c] of candidate
+    let subseq get-longest-subsequence pathL [path] of candidate
+    
+    let seq-length item 0 subseq
+    let path1start item 1 subseq
+    let path2start item 2 subseq
+    let departure1 [departure-time] of leader
+    let departure2 [departure-time] of candidate
+    
+    let delay (path1start + departure1) - (path2start + departure2)
+    
+    ifelse delay < 0
+    [
+       set non-candidates insert-item 0 non-candidates candidate
+    ]
+    [
+       let canK [k] of candidate
+       let canM [m] of candidate
+       let canPath length [path] of candidate
+
+       let newC (canK * (canPath - seq-length) + canK * 0.75 * (seq-length)) + (canM * (delay + canPath))
+      
+       ifelse newC < cost
+       [
+          ask candidate [ set platoonID pid ]
+       ]
+       [
+          set non-candidates insert-item 0 non-candidates candidate
+       ]
+    ]
+    set i i - 1
+  ]
+  report non-candidates
+end
+
+;; finds longest subsequence between two paths, as well as the starting point
+;; returns a list with three values: (path-length, subpath-start-index-1, subpath-start-index-2)
+to-report get-longest-subsequence [ path1 path2 ]
+  let x 0
+  let y 0
+  let cnt 0
+  let offset 0
+  let firstX -1
+  let firstY -1
+  let t table:make
+
+  while [ x < length path1 ]
+  [
+    table:put t ([id] of (item x path1)) x
+    set x x + 1
+  ]
+  while [ y < length path2 ]
+  [
+    if table:has-key? t ([id] of (item y path2))
+    [
+       ifelse cnt = 0
+       [
+        set firstX table:get t ([id] of (item y path2))
+         set firstY y
+         set offset firstX - firstY
+       ]
+       [
+        if (((table:get t ([id] of (item y path2))) - y) != offset)
+         [
+           report (list cnt firstX firstY)
+         ]
+       ]
+       set cnt cnt + 1
+    ]
+    set y y + 1
+  ]
+  report (list cnt firstX firstY)
+end

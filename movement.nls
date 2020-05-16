@@ -1,0 +1,37 @@
+; move all turtles
+to move
+    set tick-counter tick-counter + 1
+    if tick-counter >= (31 - speed)
+    [
+      set tick-counter 0
+      set cycle-counter cycle-counter + 1
+      move-turtles
+    ]
+    tick
+end
+
+; move turtles through their path
+to move-turtles
+  ask turtles
+  [
+    ifelse length path != 0 and cycle-counter > departure-time
+    [
+      set is-moving true
+      go-to-next-patch-in-current-path
+    ]
+    [
+      set is-moving false
+    ]
+  ]
+end
+
+to go-to-next-patch-in-current-path
+  face first path
+  repeat 10
+  [
+    fd 0.1
+  ]
+  move-to first path
+  set path remove-item 0 path
+  set time-spent time-spent + 1
+end

@@ -1,3 +1,12 @@
+__includes
+[
+  "image_load.nls"
+  "init.nls"
+  "pathfinding.nls"
+  "movement.nls"
+  "platooning.nls"
+]
+
 extensions
 [
   table
@@ -32,307 +41,17 @@ turtles-own
   is-moving ;; bool value - if the truck is "on the road"
   k ;; truck-specific constant to adjust preference for saving fuel
   m ;; truck-specific constant to adjust preference for saving time
+  c ;; cost for regular route
+  platoonID ;; id for platoon
 ]
 
-; setup the world
-to Setup
-  clear-all ;; clear everything (the view and all the variables)
-  set-patch-size 6
-  resize-world 0 99 0 99
-end
-
-; load a maze from the file system
-to load-maze [ maze ]
-  Setup
-  if maze != false
-  [
-    ifelse (item (length maze - 1) maze = "g" and item (length maze - 2) maze = "n" and item (length maze - 3) maze = "p" and item (length maze - 4) maze = ".")
-    [
-      clear-all
-      import-pcolors maze
-      ask turtles
-      [
-        die
-      ]
-      set-patch-id
-    ]
-    [
-      user-message "The selected file is not a valid image."
-    ]
-  ]
-end
-
-; sets patch specific id
-to set-patch-id
-  (foreach (sort patches) (range count patches) [ [p n] ->
-    ask p [ set id n ]
-  ])
-end
-
-; save a maze as a PNG image into the system
-to save-maze [filename]
-    export-view (filename)
-end
-
-; populate cities with tucks
-to populate
-  ask patches
-  [
-    set plabel ""
-  ]
-  ask turtles
-  [
-    die
-  ]
-  repeat n-trucks [
-    ask one-of patches with [pcolor = blue]
-    [
-      sprout 1
-      [
-        set color red
-        set origin patch-here
-        set destination patch-here
-        set departure-time random 50
-        set is-moving false
-        set k random-float 1 + 0.5
-        set m random-float 1 + 0.5
-        if display-departure-times
-        [
-          set label departure-time
-        ]
-        while [origin = destination]
-          [ set destination one-of patches with [pcolor = blue] ]
-        if display-labels
-        [
-          ask origin
-          [
-            set plabel "origin"
-          ]
-          ask destination
-          [
-            set plabel "destination"
-          ]
-        ]
-      ]
-    ]
-  ]
-  set tick-counter 0
-  set cycle-counter 0
-  set time-spent 0
-  set money-spent 0
-  reset-ticks
-  find-shortest-path
-end
-
-; call the path finding procedure, update the turtle (agent) variables, output text box
-to find-shortest-path
-  foreach (list turtles)
-    [ [a] -> ask a
-      [
-        set path find-a-path origin destination
-      ]
-      clear-patch-vars
-    ]
-end
-
-; reset patches-own variables
-to clear-patch-vars
-  ask patches
-  [
-    set parent-patch nobody
-    set f 0
-    set g 0
-    set h 0
-  ]
-end
-
-; move all turtles
-to move
-    set tick-counter tick-counter + 1
-    if tick-counter >= (31 - speed)
-    [
-      set tick-counter 0
-      set cycle-counter cycle-counter + 1
-      move-turtles
-    ]
-    tick
-end
-
-; move turtles through their path
-to move-turtles
-  ask turtles
-  [
-    ifelse length path != 0 and cycle-counter > departure-time
-    [
-      set is-moving true
-      go-to-next-patch-in-current-path
-    ]
-    [
-      set is-moving false
-    ]
-  ]
-end
-
-to go-to-next-patch-in-current-path
-  face first path
-  repeat 10
-  [
-    fd 0.1
-  ]
-  move-to first path
-  set path remove-item 0 path
-  set time-spent time-spent + 1
-end
-
-;; finds longest subsequence between two paths, as well as the starting point
-;; returns a list with three values: (path-length, subpath-start-index-1, subpath-start-index-2)
-to-report get-longest-subsequence [ path1 path2 ]
-  let x 0
-  let y 0
-  let cnt 0
-  let offset 0
-  let firstX -1
-  let firstY -1
-  let t table:make
-
-  while [ x < length path1 ]
-  [
-    table:put t ([id] of (item x path1)) x
-    set x x + 1
-  ]
-  while [ y < length path2 ]
-  [
-    if table:has-key? t ([id] of (item y path2))
-    [
-       ifelse cnt = 0
-       [
-        set firstX table:get t ([id] of (item y path2))
-         set firstY y
-         set offset firstX - firstY
-       ]
-       [
-        if (((table:get t ([id] of (item y path2))) - y) != offset)
-         [
-           report (list cnt firstX firstY)
-         ]
-       ]
-       set cnt cnt + 1
-    ]
-    set y y + 1
-  ]
-  report (list cnt firstX firstY)
-end
 
 
-; the actual implementation of the A* path finding algorithm
-; it takes the source and destination patches as inputs
-; and reports the optimal path if one exists between them as output
-; adapted from Russell, S. J.; Norvig, P. (2003)
-to-report find-a-path [ source-patch destination-patch]
 
-  ; initialize all variables to default values
-  let search-done? false
-  let search-path []
-  let current-patch 0
-  let open []
-  let closed []
 
-  ; add source patch in the open list
-  set open lput source-patch open
 
-  ; loop until we reach the destination or the open list becomes empty
-  while [ search-done? != true]
-  [
-    ifelse length open != 0
-    [
-      ; sort the patches in open list in increasing order of their f() values
-      set open sort-by [ [a b] -> [f] of a < [f] of b] open
 
-      ; take the first patch in the open list
-      ; as the current patch (which is currently being explored (n))
-      ; and remove it from the open list
-      set current-patch item 0 open
-      set open remove-item 0 open
 
-      ; add the current patch to the closed list
-      set closed lput current-patch closed
-
-      ; explore the Von Neumann (left, right, top and bottom) neighbors of the current patch
-      ask current-patch
-      [
-        ; if any of the neighbors is the destination stop the search process
-        ifelse any? neighbors4 with [ (pxcor = [ pxcor ] of destination-patch) and (pycor = [pycor] of destination-patch)]
-        [
-          set search-done? true
-        ]
-        [
-          ; the neighbors should not be obstacles or already explored patches (part of the closed list)
-          ask neighbors4 with [ (pcolor = white or pcolor = blue or pcolor = yellow) and (not member? self closed) and (self != parent-patch) ]
-          [
-            ; the neighbors to be explored should also not be the source or
-            ; destination patches or already a part of the open list (unexplored patches list)
-            if not member? self open and self != source-patch and self != destination-patch
-            [
-              ; add the eligible patch to the open list
-              set open lput self open
-
-              ; update the path finding variables of the eligible patch
-              set parent-patch current-patch
-              set g [g] of parent-patch  + 1
-              set h distance destination-patch
-              set f (g + h)
-            ]
-          ]
-        ]
-      ]
-    ]
-    [
-      ; if a path is not found (search is incomplete) and the open list is exhausted
-      ; display a user message and report an empty search path list.
-      user-message( "A path from the source to the destination does not exist." )
-      ask source-patch
-      [
-        set plabel "origin"
-      ]
-      ask destination-patch
-      [
-        set plabel "destination"
-      ]
-      report []
-    ]
-  ]
-
-  ; if a path is found (search completed) add the current patch
-  ; (node adjacent to the destination) to the search path.
-  set search-path lput current-patch search-path
-
-  ; trace the search path from the current patch
-  ; all the way to the source patch using the parent patch
-  ; variable which was set during the search for every patch that was explored
-  let temp first search-path
-  while [ temp != source-patch ]
-  [
-    if display-path
-    [
-      ask temp
-      [
-        set pcolor yellow
-      ]
-    ]
-    set search-path lput [parent-patch] of temp search-path
-    set temp [parent-patch] of temp
-  ]
-
-  ; add the destination patch to the front of the search path
-  set search-path fput destination-patch search-path
-
-  ; reverse the search path so that it starts from a patch adjacent to the
-  ; source patch and ends at the destination patch
-  set search-path reverse search-path
-
-  ; report the search path
-  report search-path
-end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -387,7 +106,7 @@ n-trucks
 n-trucks
 1
 500
-72.0
+5.0
 1
 1
 NIL
@@ -412,9 +131,9 @@ NIL
 
 BUTTON
 51
-47
+83
 201
-80
+116
 Move
 move
 T
@@ -451,9 +170,9 @@ display-labels
 
 SLIDER
 828
-182
+286
 1017
-215
+319
 speed
 speed
 1
@@ -496,6 +215,34 @@ time-spent
 0
 1
 11
+
+BUTTON
+51
+47
+201
+80
+Platoon
+platoon
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SWITCH
+828
+171
+1018
+204
+display-platoons
+display-platoons
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?

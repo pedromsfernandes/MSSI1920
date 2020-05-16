@@ -1,0 +1,39 @@
+; setup the world
+to Setup
+  clear-all ;; clear everything (the view and all the variables)
+  set-patch-size 6
+  resize-world 0 99 0 99
+end
+
+; load a maze from the file system
+to load-maze [ maze ]
+  Setup
+  if maze != false
+  [
+    ifelse (item (length maze - 1) maze = "g" and item (length maze - 2) maze = "n" and item (length maze - 3) maze = "p" and item (length maze - 4) maze = ".")
+    [
+      clear-all
+      import-pcolors maze
+      ask turtles
+      [
+        die
+      ]
+      set-patch-id
+    ]
+    [
+      user-message "The selected file is not a valid image."
+    ]
+  ]
+end
+
+; sets patch specific id
+to set-patch-id
+  (foreach (sort patches) (range count patches) [ [p n] ->
+    ask p [ set id n ]
+  ])
+end
+
+; save a maze as a PNG image into the system
+to save-maze [filename]
+    export-view (filename)
+end

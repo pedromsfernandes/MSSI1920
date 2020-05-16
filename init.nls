@@ -1,0 +1,53 @@
+; populate cities with tucks
+to populate
+  ask patches
+  [
+    set plabel ""
+  ]
+  ask turtles
+  [
+    die
+  ]
+  repeat n-trucks [
+    ask one-of patches with [pcolor = blue]
+    [
+      sprout 1
+      [
+        set color red
+        set origin patch-here
+        set destination patch-here
+        set departure-time random 50
+        set is-moving false
+        set k random-float 1 + 0.5
+        set m random-float 1 + 0.5
+        if display-departure-times
+        [
+          set label departure-time
+        ]
+        while [origin = destination]
+          [ set destination one-of patches with [pcolor = blue] ]
+        if display-labels
+        [
+          ask origin
+          [
+            set plabel "origin"
+          ]
+          ask destination
+          [
+            set plabel "destination"
+          ]
+        ]
+      ]
+    ]
+  ]
+  set tick-counter 0
+  set cycle-counter 0
+  set time-spent 0
+  set money-spent 0
+  reset-ticks
+  find-shortest-path
+  ask turtles
+  [
+    set c (k * length path) + (m * length path)
+  ]
+end
