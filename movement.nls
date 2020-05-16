@@ -16,7 +16,7 @@ to move-turtles
   [
     if length path-to-go != 0 and cycle-counter > departure-time
     [
-      set time-spent time-spent + 1
+      set time-spent time-spent + hours-per-patch
     ]
     ifelse length path-to-go != 0 and cycle-counter > (departure-time + platoonDelay)
     [
@@ -42,12 +42,12 @@ to go-to-next-patch-in-current-path
   let pid platoonID
   ifelse is-platooning and count (turtles-here with [ platoonID = pid ]) > 1
   [
-    set fuel-spent fuel-spent + 0.75
+    set fuel-spent fuel-spent + fuel-per-patch * platoon-fuel-savings-rate
     set color green
     set label count (turtles-here with [ platoonID = pid ])
   ]
   [
-    set fuel-spent fuel-spent + 1
+    set fuel-spent fuel-spent + fuel-per-patch
     set color red
     set label ""
   ]
@@ -58,6 +58,8 @@ to reset
   set fuel-spent 0
   set cycle-counter 0
   set is-platooning false
+  set n-platoons 0
+  set n-trucks-in-platoon 0
   ask turtles
   [
     move-to origin

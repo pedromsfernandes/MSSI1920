@@ -21,6 +21,8 @@ globals
   fuel-spent ; total number of "hours" spent by trucks while driving
   money-spent ; total money spent on fuel
   is-platooning ; bool representing if platooning is enabled
+  n-platoons ; number of platoons formed
+  n-trucks-in-platoon ; number of trucks in platoon
 ]
 
 ; patch variables used
@@ -110,7 +112,7 @@ n-trucks
 n-trucks
 1
 500
-100.0
+202.0
 1
 1
 NIL
@@ -273,6 +275,73 @@ MONITOR
 Fuel Spent
 fuel-spent
 2
+1
+11
+
+MONITOR
+49
+295
+201
+340
+Nº Platoons
+n-platoons
+0
+1
+11
+
+SLIDER
+1038
+62
+1217
+95
+hours-per-patch
+hours-per-patch
+0
+3
+1.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1039
+99
+1217
+132
+fuel-per-patch
+fuel-per-patch
+0
+3
+1.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1039
+135
+1217
+168
+platoon-fuel-savings-rate
+platoon-fuel-savings-rate
+0
+1
+0.75
+0.01
+1
+NIL
+HORIZONTAL
+
+MONITOR
+49
+343
+201
+388
+Nº Trucks in Platoon
+n-trucks-in-platoon
+17
 1
 11
 

@@ -1,4 +1,8 @@
 to platoon
+  ask turtles
+  [
+    set c (k * length path * fuel-per-patch) + (m * length path * hours-per-patch)
+  ]
   set is-platooning true
   let truck-list sort-by [ [a b] -> 
     ifelse-value [departure-time] of a = [departure-time] of b 
@@ -26,6 +30,8 @@ end
 to-report get-platoon-candidates [ leader trucks pid ]
   let non-candidates []
 
+  let big-platoon false
+  
   let i (length trucks - 1)
   let pathL [path] of leader
   ask leader [ set platoonID pid ]
@@ -52,7 +58,7 @@ to-report get-platoon-candidates [ leader trucks pid ]
        let canM [m] of candidate
        let canPath length [path] of candidate
 
-       let newC (canK * (canPath - seq-length) + canK * 0.75 * (seq-length)) + (canM * (delay + canPath))
+       let newC (canK * fuel-per-patch * ((canPath - seq-length) + platoon-fuel-savings-rate * (seq-length))) + (canM * hours-per-patch * (delay + canPath))
       
        ifelse newC < cost
        [
@@ -61,12 +67,19 @@ to-report get-platoon-candidates [ leader trucks pid ]
             set platoonID pid
             set platoonDelay delay
           ]
+          set big-platoon true
+          set n-trucks-in-platoon n-trucks-in-platoon + 1
        ]
        [
           set non-candidates insert-item 0 non-candidates candidate
        ]
     ]
     set i i - 1
+  ]
+  if big-platoon
+  [
+    set n-platoons n-platoons + 1
+    set n-trucks-in-platoon n-trucks-in-platoon + 1
   ]
   report non-candidates
 end

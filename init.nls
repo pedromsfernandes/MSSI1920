@@ -49,10 +49,8 @@ to populate
   set fuel-spent 0
   set money-spent 0
   set is-platooning false
+  set n-platoons 0
+  set n-trucks-in-platoon 0
   reset-ticks
   find-shortest-path
-  ask turtles
-  [
-    set c (k * length path) + (m * length path)
-  ]
 end
