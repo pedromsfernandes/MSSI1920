@@ -4,6 +4,7 @@ to find-shortest-path
     [ [a] -> ask a
       [
         set path find-a-path origin destination
+        set path-to-go path
       ]
       clear-patch-vars
     ]

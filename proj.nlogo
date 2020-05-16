@@ -37,12 +37,14 @@ turtles-own
   origin ;; starting city
   destination ;; target city
   path ;; the calculated path
+  path-to-go ;; path still ahead
   departure-time ;; cycle of departure - between 0 and 49
   is-moving ;; bool value - if the truck is "on the road"
   k ;; truck-specific constant to adjust preference for saving fuel
   m ;; truck-specific constant to adjust preference for saving time
   c ;; cost for regular route
   platoonID ;; id for platoon
+  platoonDelay ;; delay caused by platooning
 ]
 
 
@@ -106,7 +108,7 @@ n-trucks
 n-trucks
 1
 500
-5.0
+50.0
 1
 1
 NIL
@@ -131,9 +133,9 @@ NIL
 
 BUTTON
 51
-83
+85
 201
-116
+118
 Move
 move
 T
@@ -218,9 +220,9 @@ time-spent
 
 BUTTON
 51
-47
+48
 201
-80
+81
 Platoon
 platoon
 NIL
@@ -240,9 +242,26 @@ SWITCH
 204
 display-platoons
 display-platoons
-0
+1
 1
 -1000
+
+BUTTON
+51
+122
+201
+155
+Reset Positions
+reset
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?

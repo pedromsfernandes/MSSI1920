@@ -20,6 +20,8 @@ to populate
         set is-moving false
         set k random-float 1 + 0.5
         set m random-float 1 + 0.5
+        set platoonID 0
+        set platoonDelay 0
         if display-departure-times
         [
           set label departure-time

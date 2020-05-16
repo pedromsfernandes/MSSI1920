@@ -14,7 +14,11 @@ end
 to move-turtles
   ask turtles
   [
-    ifelse length path != 0 and cycle-counter > departure-time
+    if length path-to-go != 0 and cycle-counter > departure-time
+    [
+      set time-spent time-spent + 1
+    ]
+    ifelse length path-to-go != 0 and cycle-counter > (departure-time + platoonDelay)
     [
       set is-moving true
       go-to-next-patch-in-current-path
@@ -26,12 +30,23 @@ to move-turtles
 end
 
 to go-to-next-patch-in-current-path
-  face first path
+  face first path-to-go
   repeat 10
   [
     fd 0.1
   ]
-  move-to first path
-  set path remove-item 0 path
-  set time-spent time-spent + 1
+  move-to first path-to-go
+  set path-to-go remove-item 0 path-to-go
+end
+
+to reset
+  set time-spent 0
+  set cycle-counter 0
+  ask turtles
+  [
+    move-to origin
+    set path-to-go path
+    set platoonID 0
+    set platoonDelay 0
+  ]
 end

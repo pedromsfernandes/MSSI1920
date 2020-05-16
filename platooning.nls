@@ -47,7 +47,11 @@ to-report get-platoon-candidates [ leader trucks pid ]
       
        ifelse newC < cost
        [
-          ask candidate [ set platoonID pid ]
+          ask candidate 
+          [ 
+            set platoonID pid
+            set platoonDelay delay
+          ]
        ]
        [
           set non-candidates insert-item 0 non-candidates candidate
