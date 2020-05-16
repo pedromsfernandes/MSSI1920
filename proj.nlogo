@@ -18,7 +18,9 @@ globals
   tick-counter ; tick counter
   cycle-counter ; the number of "hours" passed
   time-spent ; total number of "hours" spent by trucks while driving
+  fuel-spent ; total number of "hours" spent by trucks while driving
   money-spent ; total money spent on fuel
+  is-platooning ; bool representing if platooning is enabled
 ]
 
 ; patch variables used
@@ -108,7 +110,7 @@ n-trucks
 n-trucks
 1
 500
-50.0
+100.0
 1
 1
 NIL
@@ -197,10 +199,10 @@ display-departure-times
 -1000
 
 MONITOR
-52
-472
-200
-517
+829
+332
+1017
+377
 Cycle
 cycle-counter
 0
@@ -208,10 +210,10 @@ cycle-counter
 11
 
 MONITOR
-52
-423
-200
-468
+49
+472
+201
+517
 Hours Spent
 time-spent
 0
@@ -262,6 +264,17 @@ NIL
 NIL
 NIL
 1
+
+MONITOR
+49
+424
+201
+469
+Fuel Spent
+fuel-spent
+2
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?

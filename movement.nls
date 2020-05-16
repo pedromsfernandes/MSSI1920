@@ -25,6 +25,8 @@ to move-turtles
     ]
     [
       set is-moving false
+      set color red
+      set label ""
     ]
   ]
 end
@@ -37,11 +39,25 @@ to go-to-next-patch-in-current-path
   ]
   move-to first path-to-go
   set path-to-go remove-item 0 path-to-go
+  let pid platoonID
+  ifelse is-platooning and count (turtles-here with [ platoonID = pid ]) > 1
+  [
+    set fuel-spent fuel-spent + 0.75
+    set color green
+    set label count (turtles-here with [ platoonID = pid ])
+  ]
+  [
+    set fuel-spent fuel-spent + 1
+    set color red
+    set label ""
+  ]
 end
 
 to reset
   set time-spent 0
+  set fuel-spent 0
   set cycle-counter 0
+  set is-platooning false
   ask turtles
   [
     move-to origin

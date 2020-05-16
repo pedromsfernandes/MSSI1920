@@ -1,5 +1,14 @@
 to platoon
-  let truck-list sort-by [ [a b] -> [departure-time] of a < [departure-time] of b ] turtles
+  set is-platooning true
+  let truck-list sort-by [ [a b] -> 
+    ifelse-value [departure-time] of a = [departure-time] of b 
+    [
+      length [path] of a < length [path] of b   
+    ]
+    [
+      [departure-time] of a < [departure-time] of b       
+    ]
+  ] turtles
   let cnt 1
   while [ length truck-list > 0 ]
   [

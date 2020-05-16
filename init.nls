@@ -14,6 +14,7 @@ to populate
       sprout 1
       [
         set color red
+        set label-color black
         set origin patch-here
         set destination patch-here
         set departure-time random 50
@@ -45,7 +46,9 @@ to populate
   set tick-counter 0
   set cycle-counter 0
   set time-spent 0
+  set fuel-spent 0
   set money-spent 0
+  set is-platooning false
   reset-ticks
   find-shortest-path
   ask turtles
