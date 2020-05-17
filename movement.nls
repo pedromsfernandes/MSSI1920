@@ -6,6 +6,7 @@ to move
       set tick-counter 0
       set cycle-counter cycle-counter + 1
       move-turtles
+      calc-fuel
     ]
     tick
 end
@@ -39,18 +40,28 @@ to go-to-next-patch-in-current-path
   ]
   move-to first path-to-go
   set path-to-go remove-item 0 path-to-go
-  let pid platoonID
-  ifelse is-platooning and count (turtles-here with [ platoonID = pid ]) > 1
+end
+
+to calc-fuel
+  ask turtles
   [
-    set fuel-spent fuel-spent + fuel-per-patch * platoon-fuel-savings-rate
-    set color green
-    set label count (turtles-here with [ platoonID = pid ])
+    if length path-to-go != 0 and cycle-counter > (departure-time + platoonDelay)
+    [
+      let pid platoonID
+      ifelse is-platooning and count (turtles-here with [ platoonID = pid ]) > 1
+      [
+        set fuel-spent fuel-spent + fuel-per-patch * platoon-fuel-savings-rate
+        set color green
+        set label count (turtles-here with [ platoonID = pid ])
+      ]
+      [
+        set fuel-spent fuel-spent + fuel-per-patch
+        set color red
+        set label ""
+      ] 
+    ]
   ]
-  [
-    set fuel-spent fuel-spent + fuel-per-patch
-    set color red
-    set label ""
-  ]
+  
 end
 
 to reset
