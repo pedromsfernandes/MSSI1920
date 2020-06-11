@@ -3,7 +3,7 @@ to find-shortest-path
   foreach (list turtles)
     [ [a] -> ask a
       [
-        set path find-a-path origin destination
+        set path remove-item 0 (find-a-path origin destination)
         set path-to-go path
       ]
       clear-patch-vars

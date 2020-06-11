@@ -18,15 +18,16 @@ to move-turtles
     if length path-to-go != 0 and cycle-counter > departure-time
     [
       set time-spent time-spent + hours-per-patch
+      matrix:set company_vals company-id 1 ((matrix:get company_vals company-id 1) + hours-per-patch)
     ]
     ifelse length path-to-go != 0 and cycle-counter > (departure-time + platoonDelay)
     [
       set is-moving true
+      matrix:set company_vals company-id 2 ((matrix:get company_vals company-id 2) + 1)
       go-to-next-patch-in-current-path
     ]
     [
       set is-moving false
-      set color red
       set label ""
     ]
   ]
@@ -45,18 +46,18 @@ end
 to calc-fuel
   ask turtles
   [
-    if length path-to-go != 0 and cycle-counter > (departure-time + platoonDelay)
+    if is-moving
     [
       let pid platoonID
       ifelse is-platooning and count (turtles-here with [ platoonID = pid ]) > 1
       [
         set fuel-spent fuel-spent + fuel-per-patch * platoon-fuel-savings-rate
-        set color green
+        matrix:set company_vals company-id 0 ((matrix:get company_vals company-id 0) + fuel-per-patch * platoon-fuel-savings-rate)
         set label count (turtles-here with [ platoonID = pid ])
       ]
       [
         set fuel-spent fuel-spent + fuel-per-patch
-        set color red
+        matrix:set company_vals company-id 0 ((matrix:get company_vals company-id 0) + fuel-per-patch)
         set label ""
       ] 
     ]
@@ -71,6 +72,21 @@ to reset
   set is-platooning false
   set n-platoons 0
   set n-trucks-in-platoon 0
+  matrix:set company_vals 0 0 0
+  matrix:set company_vals 0 1 0
+  matrix:set company_vals 0 2 0
+  matrix:set company_vals 1 0 0
+  matrix:set company_vals 1 1 0
+  matrix:set company_vals 1 2 0
+  matrix:set company_vals 2 0 0
+  matrix:set company_vals 2 1 0
+  matrix:set company_vals 2 2 0
+  matrix:set company_vals 3 0 0
+  matrix:set company_vals 3 1 0
+  matrix:set company_vals 3 2 0
+  matrix:set company_vals 4 0 0
+  matrix:set company_vals 4 1 0
+  matrix:set company_vals 4 2 0
   ask turtles
   [
     move-to origin

@@ -10,6 +10,7 @@ __includes
 extensions
 [
   table
+  matrix
 ]
 
 ; global variables
@@ -23,6 +24,7 @@ globals
   is-platooning ; bool representing if platooning is enabled
   n-platoons ; number of platoons formed
   n-trucks-in-platoon ; number of trucks in platoon
+  company_vals ; stats organized by company
 ]
 
 ; patch variables used
@@ -44,14 +46,13 @@ turtles-own
   path-to-go ;; path still ahead
   departure-time ;; cycle of departure - between 0 and 49
   is-moving ;; bool value - if the truck is "on the road"
-  k ;; truck-specific constant to adjust preference for saving fuel
-  m ;; truck-specific constant to adjust preference for saving time
+  company-id ;; truck's company
+  k ;; company-specific constant to adjust preference for saving fuel
+  m ;; company-specific constant to adjust preference for saving time
   c ;; cost for regular route
   platoonID ;; id for platoon
   platoonDelay ;; delay caused by platooning
 ]
-
-
 
 
 
@@ -112,7 +113,7 @@ n-trucks
 n-trucks
 1
 500
-202.0
+200.0
 1
 1
 NIL
@@ -175,10 +176,10 @@ display-labels
 -1000
 
 SLIDER
-828
-286
-1017
-319
+830
+460
+1016
+493
 speed
 speed
 1
@@ -201,10 +202,10 @@ display-departure-times
 -1000
 
 MONITOR
-829
-332
-1017
-377
+830
+495
+1016
+540
 Cycle
 cycle-counter
 0
@@ -240,9 +241,9 @@ NIL
 1
 
 SWITCH
-828
+827
 171
-1018
+1017
 204
 display-platoons
 display-platoons
@@ -298,17 +299,17 @@ hours-per-patch
 hours-per-patch
 0
 3
-1.0
-0.1
+0.75
+0.05
 1
 NIL
 HORIZONTAL
 
 SLIDER
 1039
-99
+98
 1217
-132
+131
 fuel-per-patch
 fuel-per-patch
 0
@@ -321,9 +322,9 @@ HORIZONTAL
 
 SLIDER
 1039
-135
+134
 1217
-168
+167
 platoon-fuel-savings-rate
 platoon-fuel-savings-rate
 0
@@ -341,6 +342,71 @@ MONITOR
 388
 Nº Trucks in Platoon
 n-trucks-in-platoon
+17
+1
+11
+
+MONITOR
+830
+352
+919
+397
+Fuel per Square
+matrix:get company_vals (company - 1) 0 / matrix:get company_vals (company - 1) 2
+3
+1
+11
+
+SWITCH
+830
+255
+1017
+288
+intracompany-preference
+intracompany-preference
+1
+1
+-1000
+
+MONITOR
+920
+352
+1017
+397
+Hours per Square
+matrix:get company_vals (company - 1) 1 / matrix:get company_vals (company - 1) 2
+3
+1
+11
+
+CHOOSER
+830
+306
+1017
+351
+company
+company
+1 2 3 4 5
+0
+
+MONITOR
+946
+398
+1017
+443
+Nº of Trucks
+matrix:get company_vals (company - 1) 3
+17
+1
+11
+
+MONITOR
+830
+398
+945
+443
+Nº Trucks Platooning
+matrix:get company_vals (company - 1) 4
 17
 1
 11

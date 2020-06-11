@@ -60,6 +60,11 @@ to-report get-platoon-candidates [ leader trucks pid ]
 
        let newC (canK * fuel-per-patch * ((canPath - seq-length) + platoon-fuel-savings-rate * (seq-length))) + (canM * hours-per-patch * (delay + canPath))
       
+       if intracompany-preference and ([company-id] of candidate) = ([company-id] of leader)
+       [
+          set newC (newC - 1) 
+       ]
+      
        ifelse newC < cost
        [
           ask candidate 
@@ -69,6 +74,7 @@ to-report get-platoon-candidates [ leader trucks pid ]
           ]
           set big-platoon true
           set n-trucks-in-platoon n-trucks-in-platoon + 1
+          matrix:set company_vals ([company-id] of candidate) 4 ((matrix:get company_vals ([company-id] of candidate) 4) + 1)
        ]
        [
           set non-candidates insert-item 0 non-candidates candidate
@@ -80,6 +86,7 @@ to-report get-platoon-candidates [ leader trucks pid ]
   [
     set n-platoons n-platoons + 1
     set n-trucks-in-platoon n-trucks-in-platoon + 1
+    matrix:set company_vals ([company-id] of leader) 4 ((matrix:get company_vals ([company-id] of leader) 4) + 1)
   ]
   report non-candidates
 end

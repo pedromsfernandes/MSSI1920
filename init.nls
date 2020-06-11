@@ -1,5 +1,8 @@
 ; populate cities with tucks
 to populate
+  set company_vals matrix:from-row-list [ [0 0 0 0] [0 0 0 0] [0 0 0 0] [0 0 0 0] [0 0 0 0] ]
+  let company_coef matrix:from-row-list [ [0.5 1.5] [0.75 1.25] [1 1] [1.25 0.75] [1.5 0.5] ]
+  let company_color (list red orange green yellow magenta)
   ask patches
   [
     set plabel ""
@@ -13,14 +16,16 @@ to populate
     [
       sprout 1
       [
-        set color red
         set label-color black
         set origin patch-here
         set destination patch-here
         set departure-time random 50
         set is-moving false
-        set k random-float 1 + 0.5
-        set m random-float 1 + 0.5
+        set company-id random 5
+        set k matrix:get company_coef company-id 0
+        set m matrix:get company_coef company-id 1
+        set color item company-id company_color 
+        matrix:set company_vals company-id 3 ((matrix:get company_vals company-id 3) + 1)
         set platoonID 0
         set platoonDelay 0
         if display-departure-times
