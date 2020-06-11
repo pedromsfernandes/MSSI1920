@@ -1,6 +1,6 @@
 ; populate cities with tucks
 to populate
-  set company_vals matrix:from-row-list [ [0 0 0 0] [0 0 0 0] [0 0 0 0] [0 0 0 0] [0 0 0 0] ]
+  set company_vals matrix:from-row-list [ [0 0 0 0 0] [0 0 0 0 0] [0 0 0 0 0] [0 0 0 0 0] [0 0 0 0 0] ]
   let company_coef matrix:from-row-list [ [0.5 1.5] [0.75 1.25] [1 1] [1.25 0.75] [1.5 0.5] ]
   let company_color (list red orange green yellow magenta)
   ask patches
