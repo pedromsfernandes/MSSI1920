@@ -113,7 +113,7 @@ n-trucks
 n-trucks
 1
 500
-200.0
+300.0
 1
 1
 NIL
@@ -315,7 +315,7 @@ fuel-per-patch
 0
 3
 1.0
-0.1
+0.05
 1
 NIL
 HORIZONTAL
